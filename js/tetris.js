@@ -81,10 +81,9 @@
 			if ( this.letter === 'T' ) {
 				
 				obj =	[
-						[0,1,0,0], 
-						[1,1,1,0],
-						[0,0,0,0],
-						[0,0,0,0]
+						[0,1,0], 
+						[1,1,1],
+						[0,0,0],
 						];
 				
 			}
@@ -115,7 +114,27 @@
 		//rotate updates the shape this.orientation
 		this.rotate = function(direction) {
 			
+			if ( direction === 'clock' ) {
+				
+				//console.log('rotated clockwise');
+				var matrix = this.orientation;
+				var len = this.orientation.length;
+				var newMatrix = [];
+				
+				matrix.reverse();
+				
+				for (var y=0; y<len; ++y) {
+					newMatrix[y] = [];
+					for (var x=0; x<len; ++x) {
+						
+						newMatrix[y][x] = matrix[x][y];
+						
+					}
+				}
+				
+			}
 			
+			this.orientation = newMatrix;
 			
 		}
 		
@@ -289,7 +308,7 @@
 		
 		
 		
-		// left / right
+		// left / right / down
 		this.movePlayerPiece = function() {
 			
 			if (pressLeft) {
@@ -307,6 +326,9 @@
 			} else if (pressUp) {
 				this.move('up');
 				pressUp = false;
+			} else if (pressSpace) {
+				this.rotatePiece('clock');
+				pressSpace = false;
 			}
 			
 		}
@@ -322,6 +344,20 @@
 				
 				moveDownCounter = 0;
 			}
+		}
+		
+		this.rotatePiece = function(direction) {
+			
+			var piece = this.currentPiece;
+			
+			//need to add validation check with piece nudge where appropriate
+			
+			this.updateGrid(piece, 0);	//clear current position
+			piece.rotate(direction);
+			this.updateGrid(piece, 1);	//update new position
+			
+			//if the move isn't valid then we need to either nudge up if below, right if left wall, left if right wall
+			
 		}
 		
 		//method to move the piece in a direction, check's valid
@@ -537,7 +573,10 @@
 			case 40:
 				pressDown=true;
 				break;
-		
+			
+			case 32:
+				pressSpace=true;
+				break;
 		}
 		
 	}
@@ -558,8 +597,13 @@
 				break;
 				
 			case 40:
+				pressUp=false;
 				break;
-		
+			
+			case 32:
+				pressSpace=false;
+				break;
+			
 		}
 		
 	}
